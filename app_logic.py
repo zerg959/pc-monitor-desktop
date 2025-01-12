@@ -10,13 +10,17 @@ class AppLogic:
         self.timer = QTimer()  # timer object
         self.timer_interval = 1000 # Default interval = 1 sec
         self.timer.timeout.connect(self.update_system_info)  # connect timer to update_system_info
+        
         self.time_timer = QTimer()
+        self.time_timer_interval = 1000 # Default time timer interval 1 sec
         self.time_timer.timeout.connect(self.update_time)
-        self.time_timer.start(1000)
+        self.time_timer.start(self.time_timer_interval) # Start time_timer with default interval
         self.update_time()
+
         self.recording_timer = QTimer()
         self.recording_seconds = 0
         self.recording_timer.timeout.connect(self.update_recording_time)
+        self.update_system_info() # Переместили вызов после определения recording_seconds
 
 
     def switch_recording_text(self):
@@ -34,9 +38,9 @@ class AppLogic:
             self.update_recording_time()
 
     def open_history_window(self):
-            records = db_records_list()
-            self.main_window.history_window.set_data(records)
-            self.main_window.history_window.show()
+        records = db_records_list()
+        self.main_window.history_window.set_data(records)
+        self.main_window.history_window.show()
 
     def update_system_info(self):
         sys_info = get_sys_info()
@@ -46,6 +50,13 @@ class AppLogic:
         self.main_window.ram_usage_label.setText(f"{sys_info['ram_used']:.1f} / {sys_info['ram_total']:.1f} GB")
         self.main_window.disk_progress.setValue(int(sys_info['disk_percent']))
         self.main_window.disk_usage_label.setText(f"{sys_info['disk_used']:.1f} / {sys_info['disk_total']:.1f} GB")
+        
+        minutes = self.recording_seconds // 60
+        seconds = self.recording_seconds % 60
+        hours = minutes // 60
+        minutes = minutes % 60
+        time_text = f"{hours:02}:{minutes:02}:{seconds:02}"
+        sys_info['recording_time'] = time_text
 
         if self.is_recording:
             insert_sys_data(sys_info)
@@ -56,15 +67,20 @@ class AppLogic:
             self.timer.stop()
             self.timer.start(self.timer_interval)
 
+            self.time_timer_interval = interval #Set interval for time timer
+            if self.time_timer.isActive(): #restart timer with new interval
+                self.time_timer.stop()
+                self.time_timer.start(self.time_timer_interval)
+
     def update_time(self):
         current_time = QTime.currentTime()
         time_text = current_time.toString("hh:mm:ss")
         self.main_window.time_label.setText(time_text)
-    
+
     def update_recording_time(self):
         if self.is_recording:
             self.recording_seconds += 1
-         
+
         minutes = self.recording_seconds // 60
         seconds = self.recording_seconds % 60
         hours = minutes // 60

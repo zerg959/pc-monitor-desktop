@@ -15,7 +15,8 @@ def init_db():
             disk_percent REAL,
             disk_used REAL,
             disk_total REAL,
-            timestamp TEXT
+            timestamp TEXT,
+            recording_time TEXT
         )
     """)
     return con
@@ -33,8 +34,9 @@ def insert_sys_data(data):
                 disk_percent,
                 disk_used,
                 disk_total,
-                timestamp
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                timestamp,
+                recording_time
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
 ''', (
             data['cpu_percent'],
             data['ram_percent'],
@@ -43,7 +45,8 @@ def insert_sys_data(data):
             data['disk_percent'],
             data['disk_used'],
             data['disk_total'],
-            data['time'])
+            data['time'],
+            data['recording_time'])
             )
     con.commit()
     con.close()

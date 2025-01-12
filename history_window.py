@@ -13,10 +13,11 @@ class HistoryWindow(QWidget):
         main_layout = QVBoxLayout()
 
         self.table = QTableWidget()
-        self.table.setColumnCount(8)
+        self.table.setColumnCount(9)  # Изменили количество столбцов на 9
         self.table.setHorizontalHeaderLabels([
             "ID", "CPU %", "RAM %", "RAM Used (GB)",
-            "RAM Total (GB)", "Disk %", "Disk Used (GB)", "Disk Total (GB)"
+            "RAM Total (GB)", "Disk %", "Disk Used (GB)", "Disk Total (GB)",
+            "Recording Time"  # Добавили столбец "Recording Time"
         ])
 
         # Настройка размера колонок
@@ -30,7 +31,7 @@ class HistoryWindow(QWidget):
         self.table.setRowCount(len(data))
         for row, record in enumerate(data):
             for col, value in enumerate(record):
-                if isinstance(value, float):
+                if isinstance(value, float) and col != 8:
                     item = f"{value:.2f}"
                 else:
                     item = str(value)
